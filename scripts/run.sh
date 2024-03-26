@@ -9,14 +9,29 @@ ProjectRoot="$(dirname "$BASH_SOURCE")/.."
 # Export environment variables
 export AMBULANCE_API_ENVIRONMENT="Development"
 export AMBULANCE_API_PORT="8080"
+export AMBULANCE_API_MONGODB_USERNAME="root"
+export AMBULANCE_API_MONGODB_PASSWORD="neUhaDnes"
 
-# Handle different commands
+# Define the mongo function
+mongo() {
+    docker compose --file "${ProjectRoot}/deployments/docker-compose/compose.yaml" "$@"
+}
+
+# The command is expected to be passed as the first script argument
+command=$1
+
+# Switch-case-like behavior in bash
 case "$command" in
-    "start")
-        go run "${ProjectRoot}/cmd/ambulance-api-service"
-        ;;
-    "openapi")
+    openapi)
         docker run --rm -ti -v "${ProjectRoot}:/local" openapitools/openapi-generator-cli generate -c /local/scripts/generator-cfg.yaml
+        ;;
+    start)
+        mongo up --detach
+        go run "${ProjectRoot}/cmd/ambulance-api-service"
+        mongo down
+        ;;
+    up)
+        mongo up
         ;;
     *)
         echo "Unknown command: $command"
