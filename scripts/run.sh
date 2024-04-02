@@ -36,6 +36,9 @@ case "$command" in
     test)
         go test -v ./...
         ;;
+    docker)
+        docker build -t magum/ambulance-wl-webapi:local-build -f ${ProjectRoot}/build/docker/Dockerfile .
+        ;;
     *)
         echo "Unknown command: $command"
         exit 1
